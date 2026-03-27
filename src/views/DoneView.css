@@ -231,3 +231,109 @@
     justify-content: center;
   }
 }
+
+/* Toolbar & Actions */
+.gtm-toolbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+  background: #fff;
+  padding: 16px 20px;
+  border-radius: 16px;
+  border: 1px solid #f0f0f0;
+}
+
+.toolbar-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.toolbar-left h3 {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 600;
+  color: #111;
+  max-width: 400px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.save-badge {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 11px;
+  font-weight: 600;
+  color: #27ae60;
+  background: #eafaf1;
+  padding: 4px 8px;
+  border-radius: 20px;
+}
+
+.toolbar-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.icon-btn {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: 1px solid #eee;
+  background: #fff;
+  color: #555;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.icon-btn:hover {
+  background: #f9f9f9;
+  color: #000;
+  border-color: #ddd;
+}
+
+.icon-btn.highlight {
+  background: #000;
+  color: #fff;
+  border-color: #000;
+}
+
+.icon-btn.highlight:hover {
+  background: #333;
+}
+
+/* Print Styles */
+@media print {
+  body * {
+    visibility: hidden;
+  }
+  .gtm-kanban, .gtm-kanban * {
+    visibility: visible;
+  }
+  .gtm-kanban {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    display: block !important;
+  }
+  .gtm-column {
+    page-break-inside: avoid;
+    margin-bottom: 20px;
+    background: #f9f9f9 !important;
+    border: 1px solid #eee !important;
+  }
+  .gtm-card {
+    page-break-inside: avoid;
+    border: 1px solid #eee !important;
+  }
+  .done-hero, .gtm-toolbar, nav, header, .gtm-chat-section {
+    display: none !important;
+  }
+}

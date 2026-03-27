@@ -110,3 +110,28 @@ export const getAcademie = async () => {
     return [];
   }
 };
+
+export const saveGeneration = async (projectName, strategyJson) => {
+  const response = await fetch('/api/airtable', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({
+      table: 'Generations',
+      fields: {
+        'Project': projectName,
+        'Strategy': JSON.stringify(strategyJson),
+        'Date': new Date().toISOString()
+      }
+    })
+  });
+
+  if (!response.ok) {
+    const errorBody = await response.json().catch(() => ({}));
+    console.error('Save failed:', response.status, errorBody);
+    throw new Error('Impossible de sauvegarder sur Airtable');
+  }
+
+  return response.json();
+};
