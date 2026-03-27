@@ -48,28 +48,29 @@ export default defineConfig({
             return;
           }
 
-          if (pathname === '/api/claude') {
-            console.log('DevProxy: Matching /api/claude', req.method);
+          if (pathname === '/api/gemini') {
+            console.log('DevProxy: Matching /api/gemini', req.method);
             if (req.method === 'POST') {
               let body = '';
               req.on('data', chunk => { body += chunk; });
               req.on('end', async () => {
                 try {
-                  const response = await fetch('https://api.anthropic.com/v1/messages', {
+                  const parsedBody = JSON.parse(body);
+                  const model = 'gemini-2.5-flash';
+                  const apiKey = process.env.VITE_GEMINI_API_KEY;
+                  const url = `https://generativelanguage.googleapis.com/v1/models/${model}:generateContent?key=${apiKey}`;
+
+                  const response = await fetch(url, {
                     method: 'POST',
-                    headers: {
-                      'Content-Type': 'application/json',
-                      'x-api-key': process.env.VITE_ANTHROPIC_API_KEY,
-                      'anthropic-version': '2023-06-01',
-                    },
-                    body: body.replace('claude-3-5-sonnet-20241022', 'claude-3-5-sonnet-20240620')
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(parsedBody.payload)
                   });
                   const data = await response.json();
                   res.setHeader('Content-Type', 'application/json');
                   res.statusCode = response.status;
                   res.end(JSON.stringify(data));
                 } catch (err) {
-                  console.error('DevProxy: Claude Error', err);
+                  console.error('DevProxy: Gemini Error', err);
                   res.statusCode = 500;
                   res.end(JSON.stringify({ error: err.message }));
                 }

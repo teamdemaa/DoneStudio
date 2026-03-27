@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { generateGTMStrategy } from '../services/claude';
+import { generateGTMStrategy } from '../services/gemini';
 import './DoneView.css';
 
 const DoneView = () => {

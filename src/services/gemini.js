@@ -1,5 +1,3 @@
-const CLAUDE_API_KEY = import.meta.env.VITE_ANTHROPIC_API_KEY;
-
 const SYSTEM_PROMPT = `Tu es un expert en Go-To-Market (GTM), stratégie d'acquisition et de croissance pour les startups et PME. 
 Tu génères des stratégies GTM ultra-claires, actionnables et basées sur des données réelles.
 
@@ -45,32 +43,42 @@ Tu dois TOUJOURS répondre en JSON strict avec cette structure exacte :
 Aucun texte hors du JSON. Chaque "content" doit être une réponse experte de 2-4 phrases avec des chiffres concrets adaptés au projet décrit.`;
 
 export const generateGTMStrategy = async (projectDescription) => {
-  const response = await fetch('/api/claude', {
+  const payload = {
+    contents: [{
+      parts: [{
+        text: `${SYSTEM_PROMPT}\n\nVoici mon projet : ${projectDescription}\n\nGénère ma stratégie GTM complète en JSON.`
+      }]
+    }],
+    generationConfig: {
+      temperature: 0.7,
+      maxOutputTokens: 2048,
+    }
+  };
+
+  const response = await fetch('/api/gemini', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json'
     },
     body: JSON.stringify({
-      model: 'claude-3-5-sonnet-20240620',
-      max_tokens: 4096,
-      system: SYSTEM_PROMPT,
-      messages: [
-        {
-          role: 'user',
-          content: `Voici mon projet : ${projectDescription}\n\nGénère ma stratégie GTM complète en JSON.`
-        }
-      ]
+      model: 'gemini-2.5-flash',
+      payload
     })
   });
 
   if (!response.ok) {
     const errorData = await response.json().catch(() => ({}));
-    console.error('Erreur API Claude:', response.status, errorData);
+    console.error('Erreur API Gemini:', response.status, errorData);
     throw new Error(`Erreur API: ${response.status}`);
   }
 
   const data = await response.json();
-  const text = data.content[0].text;
+  
+  if (!data.candidates || data.candidates.length === 0) {
+    throw new Error('Aucune réponse de l\'IA');
+  }
+
+  const text = data.candidates[0].content.parts[0].text;
   
   // Extract JSON from the response
   const jsonMatch = text.match(/\{[\s\S]*\}/);
