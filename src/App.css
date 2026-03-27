@@ -163,6 +163,10 @@
   padding: 80px 24px;
 }
 
+.kit-container {
+  padding-top: 40px;
+}
+
 .header {
   margin-bottom: 64px;
 }
