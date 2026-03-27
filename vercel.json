@@ -1,0 +1,12 @@
+{
+  "rewrites": [
+    {
+      "source": "/api/claude",
+      "destination": "https://api.anthropic.com/v1/messages"
+    },
+    {
+      "source": "/(.*)",
+      "destination": "/index.html"
+    }
+  ]
+}
