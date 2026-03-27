@@ -164,7 +164,7 @@
 }
 
 .header {
-  margin-bottom: 48px;
+  margin-bottom: 64px;
 }
 
 .title {
@@ -172,7 +172,7 @@
   font-style: italic;
   font-size: 40px;
   font-weight: 600;
-  margin: 0 0 8px 0;
+  margin: 0 0 4px 0;
   letter-spacing: -0.02em;
 }
 

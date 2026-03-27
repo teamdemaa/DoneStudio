@@ -8,6 +8,11 @@
   justify-content: space-between;
   padding: 0 24px;
   margin-bottom: 20px;
+  min-height: 48px;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
 }
 
 .section-title {

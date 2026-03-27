@@ -40,7 +40,7 @@ const KitView = ({ modeles, outils, ressources, loading }) => {
               
               <div className="kit-card-content">
                 <span className="kit-tag">
-                  {isModele ? (item.category || item.tool || 'Modèle') : (item.category || item.type || title.slice(0, -1))}
+                  {isModele ? (item.category || item.tool || 'Modèle') : (item.type || item.category || title.slice(0, -1))}
                 </span>
                 <h3 className="kit-card-title">{item.name}</h3>
                 {item.description && !isModele && <p className="kit-card-desc">{item.description}</p>}
@@ -57,7 +57,7 @@ const KitView = ({ modeles, outils, ressources, loading }) => {
   };
 
   return (
-    <div className="view-container fade-in">
+    <div className="view-container kit-container fade-in">
       <header className="header">
         <h1 className="title">Kit.</h1>
         <p className="subtitle">Boîte à outils de l'entrepreneur.</p>

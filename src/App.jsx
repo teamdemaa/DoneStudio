@@ -8,7 +8,7 @@ import { CheckCircle, LayoutGrid, Package } from 'lucide-react';
 import './App.css';
 
 function App() {
-  const [activeTab, setActiveTab] = useState('academie');
+  const [activeTab, setActiveTab] = useState('done');
   const [academieData, setAcademieData] = useState([]);
   const [modeles, setModeles] = useState([]);
   const [outils, setOutils] = useState([]);
