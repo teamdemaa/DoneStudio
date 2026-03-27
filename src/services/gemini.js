@@ -80,13 +80,17 @@ export const generateGTMStrategy = async (projectDescription) => {
 
   let text = data.candidates[0].content.parts[0].text;
   
-  // Si pour une raison ou une autre il y a encore des backticks
-  text = text.replace(/```json|```/g, '').trim();
+  // Extraire le bloc JSON même s'il y a du texte avant/après ou des backticks
+  const jsonMatch = text.match(/\{[\s\S]*\}/);
+  if (!jsonMatch) {
+    console.error('Aucun JSON trouvé dans la réponse:', text);
+    throw new Error('Le format de la stratégie générée est invalide.');
+  }
   
   try {
-    return JSON.parse(text);
+    return JSON.parse(jsonMatch[0]);
   } catch (e) {
-    console.error('Erreur de parsing JSON Gemini:', e, text);
-    throw new Error('Le format de la stratégie générée est invalide.');
+    console.error('Erreur de parsing JSON Gemini:', e, jsonMatch[0]);
+    throw new Error('La stratégie générée contient une erreur de format.');
   }
 };
