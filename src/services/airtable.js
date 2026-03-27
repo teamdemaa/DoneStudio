@@ -1,23 +1,31 @@
-import Airtable from 'airtable';
+// Utilise maintenant les Vercel Functions (/api/airtable.js) pour plus de sécurité
+// Les clés ne sont plus stockées ni utilisées côté client.
 
-const base = new Airtable({
-  apiKey: import.meta.env.VITE_AIRTABLE_ACCESS_TOKEN
-}).base(import.meta.env.VITE_AIRTABLE_BASE_ID);
+const fetchFromAirtable = async (table, options = {}) => {
+  const params = new URLSearchParams({ table });
+  if (options.fields) params.append('fields', JSON.stringify(options.fields));
+  if (options.sort) params.append('sort', JSON.stringify(options.sort));
+
+  const response = await fetch(`/api/airtable?${params.toString()}`);
+  if (!response.ok) {
+    throw new Error(`Erreur Airtable Proxy: ${response.status}`);
+  }
+  return response.json();
+};
 
 export const getProjets = async () => {
   try {
-    const records = await base('Projets').select({
-      fields: ['Name', 'Description', 'Catégorie', 'Statut', 'Rejoindre ce projet'],
-      pageSize: 50
-    }).firstPage();
+    const data = await fetchFromAirtable('Projets', {
+      fields: ['Name', 'Description', 'Catégorie', 'Statut', 'Rejoindre ce projet']
+    });
     
-    return records.map(record => ({
+    return data.map(record => ({
       id: record.id,
-      name: record.get('Name'),
-      description: record.get('Description'),
-      category: record.get('Catégorie'),
-      status: record.get('Statut'),
-      link: record.get('Rejoindre ce projet')
+      name: record.fields['Name'],
+      description: record.fields['Description'],
+      category: record.fields['Catégorie'],
+      status: record.fields['Statut'],
+      link: record.fields['Rejoindre ce projet']
     }));
   } catch (error) {
     console.error('Error fetching Projets:', error);
@@ -27,18 +35,17 @@ export const getProjets = async () => {
 
 export const getModeles = async () => {
   try {
-    const records = await base('Modèles').select({
-      fields: ['Name', 'Description', 'Catégorie', 'Image', 'Lien', 'Outil'],
-      pageSize: 20
-    }).firstPage();
-    return records.map(record => ({
+    const data = await fetchFromAirtable('Modèles', {
+      fields: ['Name', 'Description', 'Catégorie', 'Image', 'Lien', 'Outil']
+    });
+    return data.map(record => ({
       id: record.id,
-      name: record.get('Name'),
-      description: record.get('Description'),
-      category: record.get('Catégorie'),
-      images: record.get('Image')?.map(img => img.url) || [],
-      link: record.get('Lien'),
-      tool: record.get('Outil')
+      name: record.fields['Name'],
+      description: record.fields['Description'],
+      category: record.fields['Catégorie'],
+      images: record.fields['Image']?.map(img => img.url) || [],
+      link: record.fields['Lien'],
+      tool: record.fields['Outil']
     }));
   } catch (error) {
     console.error('Error fetching Modèles:', error);
@@ -48,16 +55,15 @@ export const getModeles = async () => {
 
 export const getOutils = async () => {
   try {
-    const records = await base('Outils').select({
-      fields: ['Name', 'Description', 'Catégorie', 'Lien'],
-      pageSize: 20
-    }).firstPage();
-    return records.map(record => ({
+    const data = await fetchFromAirtable('Outils', {
+      fields: ['Name', 'Description', 'Catégorie', 'Lien']
+    });
+    return data.map(record => ({
       id: record.id,
-      name: record.get('Name'),
-      description: record.get('Description'),
-      category: record.get('Catégorie'),
-      link: record.get('Lien')
+      name: record.fields['Name'],
+      description: record.fields['Description'],
+      category: record.fields['Catégorie'],
+      link: record.fields['Lien']
     }));
   } catch (error) {
     console.error('Error fetching Outils:', error);
@@ -67,18 +73,17 @@ export const getOutils = async () => {
 
 export const getRessources = async () => {
   try {
-    const records = await base('Ressources').select({
-      fields: ['Name', 'Catégorie', 'Description', 'Lien', 'Créateur', 'Type'],
-      pageSize: 20
-    }).firstPage();
-    return records.map(record => ({
+    const data = await fetchFromAirtable('Ressources', {
+      fields: ['Name', 'Catégorie', 'Description', 'Lien', 'Créateur', 'Type']
+    });
+    return data.map(record => ({
       id: record.id,
-      name: record.get('Name'),
-      category: record.get('Catégorie'),
-      description: record.get('Description'),
-      link: record.get('Lien'),
-      creator: record.get('Créateur'),
-      type: record.get('Type')
+      name: record.fields['Name'],
+      category: record.fields['Catégorie'],
+      description: record.fields['Description'],
+      link: record.fields['Lien'],
+      creator: record.fields['Créateur'],
+      type: record.fields['Type']
     }));
   } catch (error) {
     console.error('Error fetching Ressources:', error);
@@ -88,17 +93,17 @@ export const getRessources = async () => {
 
 export const getAcademie = async () => {
   try {
-    const records = await base('Académie').select({
+    const data = await fetchFromAirtable('Académie', {
       fields: ['name', 'description', 'category', 'image', 'Lien'],
       sort: [{ field: 'name', direction: 'asc' }]
-    }).firstPage();
-    return records.map(record => ({
+    });
+    return data.map(record => ({
       id: record.id,
-      name: record.get('name'),
-      description: record.get('description'),
-      category: record.get('category') ? record.get('category')[0] : '',
-      image: record.get('image') ? record.get('image')[0].url : null,
-      videoUrl: record.get('Lien')
+      name: record.fields['name'],
+      description: record.fields['description'],
+      category: record.fields['category'] ? record.fields['category'][0] : '',
+      image: record.fields['image'] ? record.fields['image'][0].url : null,
+      videoUrl: record.fields['Lien']
     }));
   } catch (error) {
     console.error('Error fetching Académie:', error);

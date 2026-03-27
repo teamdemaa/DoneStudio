@@ -48,12 +48,10 @@ export const generateGTMStrategy = async (projectDescription) => {
   const response = await fetch('/api/claude', {
     method: 'POST',
     headers: {
-      'Content-Type': 'application/json',
-      'x-api-key': CLAUDE_API_KEY,
-      'anthropic-version': '2023-06-01',
+      'Content-Type': 'application/json'
     },
     body: JSON.stringify({
-      model: 'claude-3-5-sonnet-20241022',
+      model: 'claude-3-5-sonnet-20240620',
       max_tokens: 4096,
       system: SYSTEM_PROMPT,
       messages: [
@@ -66,6 +64,8 @@ export const generateGTMStrategy = async (projectDescription) => {
   });
 
   if (!response.ok) {
+    const errorData = await response.json().catch(() => ({}));
+    console.error('Erreur API Claude:', response.status, errorData);
     throw new Error(`Erreur API: ${response.status}`);
   }
 
