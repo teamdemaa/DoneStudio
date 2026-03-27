@@ -61,7 +61,7 @@ export const generateGTMStrategy = async (projectDescription) => {
       'Content-Type': 'application/json'
     },
     body: JSON.stringify({
-      model: 'gemini-2.5-flash',
+      model: 'gemini-2.5-flash', // On utilise la version GA de 2026
       payload
     })
   });
@@ -78,11 +78,15 @@ export const generateGTMStrategy = async (projectDescription) => {
     throw new Error('Aucune réponse de l\'IA');
   }
 
-  const text = data.candidates[0].content.parts[0].text;
+  let text = data.candidates[0].content.parts[0].text;
   
-  // Extract JSON from the response
-  const jsonMatch = text.match(/\{[\s\S]*\}/);
-  if (!jsonMatch) throw new Error('Format de réponse invalide');
+  // Si pour une raison ou une autre il y a encore des backticks
+  text = text.replace(/```json|```/g, '').trim();
   
-  return JSON.parse(jsonMatch[0]);
+  try {
+    return JSON.parse(text);
+  } catch (e) {
+    console.error('Erreur de parsing JSON Gemini:', e, text);
+    throw new Error('Le format de la stratégie générée est invalide.');
+  }
 };
