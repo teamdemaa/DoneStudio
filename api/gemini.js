@@ -14,12 +14,17 @@ export default async function handler(req, res) {
     const model = req.body.model || 'gemini-2.5-flash';
     const url = `https://generativelanguage.googleapis.com/v1/models/${model}:generateContent?key=${apiKey}`;
 
+    const payload = req.body.payload;
+    if (payload.generationConfig) {
+      payload.generationConfig.maxOutputTokens = 4096;
+    }
+
     const response = await fetch(url, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify(req.body.payload)
+      body: JSON.stringify(payload)
     });
 
     const data = await response.json();

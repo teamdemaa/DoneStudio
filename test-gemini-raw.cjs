@@ -1,3 +1,6 @@
+const https = require('https');
+const apiKey = 'AIzaSyAZLq24eB8WIHFNBpu5IzoMZig6pd7enCg';
+
 const SYSTEM_PROMPT = `Tu es un expert en Go-To-Market (GTM), stratégie d'acquisition et de croissance pour les startups et PME. 
 Tu génères des stratégies GTM ultra-claires, actionnables et basées sur des données réelles.
 
@@ -42,55 +45,48 @@ Tu dois TOUJOURS répondre en JSON strict avec cette structure exacte :
 
 Aucun texte hors du JSON. Chaque "content" doit être une réponse experte de 2-4 phrases avec des chiffres concrets adaptés au projet décrit.`;
 
-export const generateGTMStrategy = async (projectDescription) => {
-  const payload = {
-    contents: [{
-      parts: [{
-        text: `${SYSTEM_PROMPT}\n\nVoici mon projet : ${projectDescription}\n\nGénère ma stratégie GTM complète en JSON.`
-      }]
-    }],
-    generationConfig: {
-      temperature: 0.7,
-      maxOutputTokens: 4096,
-    }
-  };
-
-  const response = await fetch('/api/gemini', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json'
-    },
-    body: JSON.stringify({
-      model: 'gemini-2.5-flash', // On utilise la version GA de 2026
-      payload
-    })
-  });
-
-  if (!response.ok) {
-    const errorData = await response.json().catch(() => ({}));
-    console.error('Erreur API Gemini:', response.status, errorData);
-    throw new Error(`Erreur API: ${response.status}`);
-  }
-
-  const data = await response.json();
-  
-  if (!data.candidates || data.candidates.length === 0) {
-    throw new Error('Aucune réponse de l\'IA');
-  }
-
-  let text = data.candidates[0].content.parts[0].text;
-  
-  // Extraire le bloc JSON même s'il y a du texte avant/après ou des backticks
-  const jsonMatch = text.match(/\{[\s\S]*\}/);
-  if (!jsonMatch) {
-    console.error('Aucun JSON trouvé dans la réponse:', text);
-    throw new Error('Le format de la stratégie générée est invalide.');
-  }
-  
-  try {
-    return JSON.parse(jsonMatch[0]);
-  } catch (e) {
-    console.error('Erreur de parsing JSON Gemini:', e, jsonMatch[0]);
-    throw new Error('La stratégie générée contient une erreur de format.');
+const payload = {
+  contents: [{
+    parts: [{
+      text: `${SYSTEM_PROMPT}\n\nVoici mon projet : Une boutique de CBD premium à Lyon.\n\nGénère ma stratégie GTM complète en JSON.`
+    }]
+  }],
+  generationConfig: {
+    temperature: 0.7,
+    maxOutputTokens: 4096
   }
 };
+
+const postData = JSON.stringify(payload);
+
+const options = {
+  hostname: 'generativelanguage.googleapis.com',
+  path: `/v1/models/gemini-2.5-flash:generateContent?key=${apiKey}`,
+  method: 'POST',
+  headers: {
+    'Content-Type': 'application/json',
+    'Content-Length': Buffer.byteLength(postData)
+  }
+};
+
+const req = https.request(options, (res) => {
+  let data = '';
+  res.on('data', (chunk) => { data += chunk; });
+  res.on('end', () => {
+    console.log('STATUS:', res.statusCode);
+    console.log('LENGTH:', data.length);
+    try {
+      const parsed = JSON.parse(data);
+      const text = parsed.candidates[0].content.parts[0].text;
+      console.log('TEXT_LENGTH:', text.length);
+      console.log('JSON_VALID:', text.match(/\{[\s\S]*\}/) !== null);
+      console.log('TEXT_END:', text.slice(-50));
+    } catch (e) {
+      console.log('RAW DATA (truncated?):', data.slice(-100));
+    }
+  });
+});
+
+req.on('error', (e) => { console.error(e); });
+req.write(postData);
+req.end();
